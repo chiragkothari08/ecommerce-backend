@@ -1,0 +1,515 @@
+{
+  "info": {
+    "name": "E-Commerce Backend API (Chirag's 32-36 Core APIs)",
+    "description": "Matches the module breakdown: Auth, Profile/Address, Products, Wishlist, Cart, Coupons, Checkout/Orders/Payments, Admin. Set 'baseUrl' and run 'Login' first — it auto-saves the access token for all other requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "addressId", "value": "" },
+    { "key": "orderId", "value": "" },
+    { "key": "cartItemId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "1. Authentication & User Management (5)",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Rahul\",\n  \"lastName\": \"Sharma\",\n  \"email\": \"rahul@example.com\",\n  \"phone\": \"9876543210\",\n  \"password\": \"Password@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (email/phone + password)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrPhone\": \"rahul@example.com\",\n  \"password\": \"Password@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/send-otp",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"purpose\": \"LOGIN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP (and login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  if (data && data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login-otp",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\",\n  \"purpose\": \"LOGIN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/google",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"google-id-token-here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"rahul@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/reset-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resetToken\": \"reset-token-from-email\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh-token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Profile & Addresses (4)",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/me" }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rahul Sharma\",\n  \"email\": \"rahul.new@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "Get Addresses",
+          "request": { "method": "GET", "url": "{{baseUrl}}/addresses" }
+        },
+        {
+          "name": "Add Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  if (data && data.id) pm.collectionVariables.set('addressId', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/addresses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Home\",\n  \"fullName\": \"Rahul Sharma\",\n  \"phone\": \"9876543210\",\n  \"addressLine1\": \"123 MG Road\",\n  \"addressLine2\": \"Near City Mall\",\n  \"city\": \"Indore\",\n  \"state\": \"Madhya Pradesh\",\n  \"zipCode\": \"452001\",\n  \"country\": \"India\",\n  \"isDefault\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/addresses/{{addressId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Office\",\n  \"fullName\": \"Rahul Sharma\",\n  \"phone\": \"9876543210\",\n  \"addressLine1\": \"456 Business Park\",\n  \"city\": \"Indore\",\n  \"state\": \"Madhya Pradesh\",\n  \"zipCode\": \"452010\",\n  \"country\": \"India\",\n  \"isDefault\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/addresses/{{addressId}}" }
+        }
+      ]
+    },
+    {
+      "name": "3. Products & Catalog (5)",
+      "item": [
+        {
+          "name": "Get Categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/categories" }
+        },
+        {
+          "name": "Get Products (search/filter/sort/paginate)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?category=&brand=&minPrice=0&maxPrice=100000&sort=newest&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "category", "value": "" },
+                { "key": "brand", "value": "" },
+                { "key": "minPrice", "value": "0" },
+                { "key": "maxPrice", "value": "100000" },
+                { "key": "sort", "value": "newest" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Featured Products",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products/featured" }
+        },
+        {
+          "name": "Get Flash-Sale Products (trending equivalent)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products/flash-sale" }
+        },
+        {
+          "name": "Get Product Detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  if (data && data.id) pm.collectionVariables.set('productId', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" }
+        },
+        {
+          "name": "Get Product Reviews",
+          "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}/reviews?page=0&size=10" }
+        },
+        {
+          "name": "Submit Product Review",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/products/{{productId}}/reviews",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great quality, fits perfectly!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Wishlist (3)",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": { "method": "GET", "url": "{{baseUrl}}/wishlist" }
+        },
+        {
+          "name": "Add to Wishlist",
+          "request": { "method": "POST", "url": "{{baseUrl}}/wishlist/{{productId}}" }
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/wishlist/{{productId}}" }
+        }
+      ]
+    },
+    {
+      "name": "5. Cart (4)",
+      "item": [
+        {
+          "name": "Get Cart (items + price breakdown + delivery estimate)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/cart" }
+        },
+        {
+          "name": "Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const items = pm.response.json().data.items;",
+                  "  if (items && items.length) pm.collectionVariables.set('cartItemId', items[items.length-1].itemId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cart/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"variantId\": null,\n  \"quantity\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cart/items/{{cartItemId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 3\n}" }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/cart/items/{{cartItemId}}" }
+        }
+      ]
+    },
+    {
+      "name": "6. Coupons & Discounts (1)",
+      "item": [
+        {
+          "name": "Apply/Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/cart/coupon",
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"WELCOME10\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Checkout, Orders & Tracking (5)",
+      "item": [
+        {
+          "name": "Checkout / Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json().data;",
+                  "  if (data && data.orderId) pm.collectionVariables.set('orderId', data.orderId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressId\": \"{{addressId}}\",\n  \"paymentMethod\": \"UPI\",\n  \"couponCode\": \"WELCOME10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Razorpay - Create Payment Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/payments/create-order",
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": \"{{orderId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Razorpay - Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/payments/verify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpayOrderId\": \"order_xxx\",\n  \"razorpayPaymentId\": \"pay_xxx\",\n  \"razorpaySignature\": \"signature_xxx\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Order History",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders?page=0&size=10" }
+        },
+        {
+          "name": "Get Order Detail & Tracking",
+          "request": { "method": "GET", "url": "{{baseUrl}}/orders/{{orderId}}/tracking" }
+        },
+        {
+          "name": "Request Return",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/returns",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"reason\": \"Product size doesn't fit\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Admin Dashboard APIs (7)",
+      "item": [
+        {
+          "name": "Admin - Create Product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Men Luxury Shirt\",\n  \"description\": \"Premium cotton shirt\",\n  \"categoryId\": null,\n  \"brand\": \"Levi's\",\n  \"price\": 1499.00,\n  \"discountPrice\": 999.00,\n  \"stock\": 50,\n  \"featured\": true,\n  \"flashSale\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Admin - Update Product / Inventory Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/inventory/{{productId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"stock\": 75\n}" }
+          }
+        },
+        {
+          "name": "Admin - Manage Categories (Create)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Shirts\",\n  \"slug\": \"shirts\",\n  \"sortOrder\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Admin - Get All Orders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/admin/orders?page=0&size=20" }
+        },
+        {
+          "name": "Admin - Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/orders/{{orderId}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"SHIPPED\"\n}" }
+          }
+        },
+        {
+          "name": "Admin - Create Coupon",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/coupons",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WELCOME10\",\n  \"description\": \"10% off first order\",\n  \"discountType\": \"PERCENTAGE\",\n  \"discountValue\": 10,\n  \"minOrderValue\": 500,\n  \"maxDiscountAmount\": 300,\n  \"usageLimit\": 1000\n}"
+            }
+          }
+        },
+        {
+          "name": "Admin - Get All Users",
+          "request": { "method": "GET", "url": "{{baseUrl}}/admin/users?page=0&size=20" }
+        },
+        {
+          "name": "Admin - Analytics Dashboard",
+          "request": { "method": "GET", "url": "{{baseUrl}}/admin/analytics/dashboard" }
+        },
+        {
+          "name": "Admin - Approve/Reject Return",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/admin/returns/{{orderId}}/approve",
+            "body": { "mode": "raw", "raw": "{\n  \"remarks\": \"Approved - pickup scheduled\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
