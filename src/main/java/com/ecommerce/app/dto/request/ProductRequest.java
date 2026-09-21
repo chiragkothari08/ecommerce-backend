@@ -3,6 +3,7 @@ package com.ecommerce.app.dto.request;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -16,4 +17,5 @@ public class ProductRequest {
     private Integer stock;
     private boolean featured;
     private boolean flashSale;
+    private List<String> images;
 }

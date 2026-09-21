@@ -5,6 +5,7 @@ import com.ecommerce.app.dto.response.PageResponse;
 import com.ecommerce.app.dto.response.ProductResponse;
 import com.ecommerce.app.entity.Category;
 import com.ecommerce.app.entity.Product;
+import com.ecommerce.app.entity.ProductImage;
 import com.ecommerce.app.entity.RecentlyViewed;
 import com.ecommerce.app.entity.User;
 import com.ecommerce.app.exception.ApiException;
@@ -155,6 +156,19 @@ public class ProductServiceImpl implements ProductService {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> ApiException.notFound("Category not found"));
             product.setCategory(category);
+        }
+        if (request.getImages() != null) {
+            product.getImages().clear();
+            int order = 0;
+            for (String imgUrl : request.getImages()) {
+                if (imgUrl != null && !imgUrl.trim().isEmpty()) {
+                    ProductImage img = new ProductImage();
+                    img.setProduct(product);
+                    img.setUrl(imgUrl.trim());
+                    img.setSortOrder(order++);
+                    product.getImages().add(img);
+                }
+            }
         }
     }
 }
