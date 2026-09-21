@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: 8080
   servlet:
     context-path: /
 
@@ -21,7 +21,7 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    open-in-view: false
+    open-in-view: true
 
   flyway:
     enabled: true
@@ -38,8 +38,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${MAIL_USERNAME:admin.medinexa@gmail.com}
+    password: ${MAIL_PASSWORD:drjejfxpimfdkglw}
     properties:
       mail:
         smtp:

@@ -29,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final OtpVerificationRepository otpVerificationRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final com.ecommerce.app.service.EmailService emailService;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -49,6 +50,11 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.CUSTOMER);
         user = userRepository.save(user);
+
+        // Send welcome email in background
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getName());
+        }
 
         return buildAuthResponse(user);
     }

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
 
@@ -46,9 +45,6 @@ public class Product extends BaseEntity {
 
     @Column(nullable = false)
     private boolean flashSale = false;
-
-    @Column(name = "flash_sale_end_time")
-    private Instant flashSaleEndTime;
 
     private Double avgRating = 0.0;
 

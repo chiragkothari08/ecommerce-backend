@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -150,7 +151,6 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(request.getStock());
         product.setFeatured(request.isFeatured());
         product.setFlashSale(request.isFlashSale());
-        product.setFlashSaleEndTime(request.getFlashSaleEndTime());
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> ApiException.notFound("Category not found"));
