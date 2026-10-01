@@ -57,16 +57,15 @@ public class ProductApiController {
             return ApiResponse.ok(productService.search(query, pageable));
         }
 
-        return ApiResponse.ok(
-                productService.listProducts(
-                        category,
-                        brand,
-                        minPrice,
-                        maxPrice,
-                        sort,
-                        pageable
-                )
-        );
+       if (sort == null || sort.isBlank()
+        || sort.trim().equals("[]")
+        || sort.trim().equals("[\"string\"]")) {
+    sort = null;
+}
+
+return ApiResponse.ok(productService.listProducts(
+    category, brand, minPrice, maxPrice, sort, pageable
+));
     }
 
     @GetMapping("/products/featured")
